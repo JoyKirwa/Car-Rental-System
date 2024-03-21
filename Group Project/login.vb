@@ -1,4 +1,6 @@
 ﻿Imports MySql.Data.MySqlClient
+Imports System.Security.Cryptography
+Imports System.Text
 Imports System.Text.RegularExpressions
 
 Public Class login
@@ -14,7 +16,7 @@ Public Class login
         Try
             MySqlConn.Open()
             Dim Query As String
-            Query = "SELECT * FROM users WHERE email='" & txtSigninEmail.Text.ToLower & "'AND password='" & txtSigninPassword.Text & "' "
+            Query = "SELECT * FROM users WHERE email='" & txtSigninEmail.Text.ToLower & "'AND password='" & HashPassword(txtSigninPassword.Text) & "' "
             Dim IsAdminQuery = "SELECT * FROM users WHERE email='" & txtSigninEmail.Text.ToLower & "' AND is_Admin='1'"
             Command = New MySqlCommand(Query, MySqlConn)
             Reader = Command.ExecuteReader
@@ -26,9 +28,14 @@ Public Class login
             Dim Pattern As String = "^[A-Za-z0-9+_.-]+@(.+)$"
             Dim Regex As New Regex(Pattern)
 
+            Dim hashedPassword As String = ""
+
+
             While Reader.Read
                 Count = Count + 1
+                hashedPassword = Reader.GetString("Password").ToString()
             End While
+
             Reader.Close()
 
 
@@ -41,6 +48,7 @@ Public Class login
             ElseIf Len(txtSigninPassword.Text) = 0 Then
                 MessageBox.Show("Please enter your password")
             Else
+
                 If Count = 1 Then
                     IsAdmin = IsAdminCommand.ExecuteReader
                     While IsAdmin.Read
@@ -58,8 +66,9 @@ Public Class login
                 ElseIf Count > 1 Then
                     MessageBox.Show("Duplicate email and password entries")
                 Else
-                    MessageBox.Show("Connection failed")
+                    MessageBox.Show("Invalid email or password")
                 End If
+
             End If
 
             MySqlConn.Close()
@@ -86,4 +95,16 @@ Public Class login
         signup.Show()
         Me.Hide()
     End Sub
+
+    Private Function HashPassword(password As String) As String
+        Using sha256 As SHA256 = SHA256.Create()
+            Dim hashedBytes As Byte() = sha256.ComputeHash(Encoding.UTF8.GetBytes(password))
+            Dim builder As New StringBuilder()
+            For Each b As Byte In hashedBytes
+                builder.Append(b.ToString("x2"))
+            Next
+            Return builder.ToString()
+        End Using
+    End Function
+
 End Class

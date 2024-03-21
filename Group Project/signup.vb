@@ -33,6 +33,8 @@ Public Class signup
             Count = 0
             LicenseCount = 0
 
+            Dim hashedPassword As String = HashPassword(txtAddPassword.Text)
+
             Dim pattern As String = "^[A-Za-z0-9+_.-]+@(.+)$"
             Dim PasswordPattern As String = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
             Dim Regex As New Regex(pattern)
@@ -40,7 +42,7 @@ Public Class signup
 
 
 
-            Query = "INSERT INTO `users`(`Name`, `Email`, `Password`, `PhoneNumber`, `National_ID`, `LicenseNumber`) VALUES ('" & txtSignupName.Text & "','" & txtSignupEmail.Text.ToLower & "','" & txtSignupPassword.Text & "','" & txtSignupPhoneNumber.Text & "','" & txtSignupNationalID.Text & "','" & txtSignupLicenseNumber.Text & "')"
+            Query = "INSERT INTO `users`(`Name`, `Email`, `Password`, `PhoneNumber`, `National_ID`, `LicenseNumber`) VALUES ('" & txtSignupName.Text & "','" & txtSignupEmail.Text.ToLower & "','" & hashedPassword & "','" & txtSignupPhoneNumber.Text & "','" & txtSignupNationalID.Text & "','" & txtSignupLicenseNumber.Text & "')"
             QueryEmail = "SELECT * FROM users WHERE email='" & txtSignupEmail.Text & "'"
             QueryLicenseNumber = "SELECT * FROM users WHERE LicenseNumber='" & txtSignupLicenseNumber.Text & "'"
             CommandConfirmEmail = New MySqlCommand(QueryEmail, MySqlConn)

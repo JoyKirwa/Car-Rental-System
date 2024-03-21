@@ -83,6 +83,24 @@
     <Compile Include="adminDashboard.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="adminDashboardManageCatalog.Designer.vb">
+      <DependentUpon>adminDashboardManageCatalog.vb</DependentUpon>
+    </Compile>
+    <Compile Include="adminDashboardManageCatalog.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="adminDashboardRent.Designer.vb">
+      <DependentUpon>adminDashboardRent.vb</DependentUpon>
+    </Compile>
+    <Compile Include="adminDashboardRent.vb">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="adminDashboardViewRentals.Designer.vb">
+      <DependentUpon>adminDashboardViewRentals.vb</DependentUpon>
+    </Compile>
+    <Compile Include="adminDashboardViewRentals.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="CarInfo.Designer.vb">
       <DependentUpon>CarInfo.vb</DependentUpon>
     </Compile>
@@ -105,6 +123,7 @@
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="My Project\Resources.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -126,6 +145,15 @@
   <ItemGroup>
     <EmbeddedResource Include="adminDashboard.resx">
       <DependentUpon>adminDashboard.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="adminDashboardManageCatalog.resx">
+      <DependentUpon>adminDashboardManageCatalog.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="adminDashboardRent.resx">
+      <DependentUpon>adminDashboardRent.vb</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="adminDashboardViewRentals.resx">
+      <DependentUpon>adminDashboardViewRentals.vb</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="CarInfo.resx">
       <DependentUpon>CarInfo.vb</DependentUpon>

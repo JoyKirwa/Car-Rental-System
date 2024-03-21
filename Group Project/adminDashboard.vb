@@ -1,4 +1,6 @@
 ﻿Imports MySql.Data.MySqlClient
+Imports System.Security.Cryptography
+Imports System.Text
 Imports System.Text.RegularExpressions
 
 Public Class adminDashboard
@@ -9,38 +11,7 @@ Public Class adminDashboard
 
     Private Sub adminDashboard_Load(sender As Object, e As EventArgs) Handles MyBase.Load
 
-        MySqlConn = New MySqlConnection
-        MySqlConn.ConnectionString = "server=localhost;userid=root;password=;database=rentalproject"
-        Dim Reader As MySqlDataReader
-
-        Try
-            MySqlConn.Open()
-            Dim Query As String
-            Query = "SELECT * FROM users"
-            Command = New MySqlCommand(Query, MySqlConn)
-            Reader = Command.ExecuteReader
-
-            While Reader.Read
-                Dim EmailColumn = Reader.GetString("Email")
-                Dim NameColumn = Reader.GetString("Name")
-                Dim PhoneNumberColumn = Reader.GetInt32("PhoneNumber")
-                Dim LicenseNumberColumn = Reader.GetString("LicenseNumber")
-                Dim IDColumn = Reader.GetInt32("National_ID")
-
-                cmbSelectUserDelete.Items.Add(EmailColumn)
-                cmbSelectUserUpdate.Items.Add(EmailColumn)
-
-            End While
-
-            Reader.Close()
-            MySqlConn.Close()
-        Catch ex As MySqlException
-            MessageBox.Show(ex.Message)
-
-        Finally
-            MySqlConn.Dispose()
-
-        End Try
+        LoadUsersToComboBox()
 
     End Sub
 
@@ -62,6 +33,8 @@ Public Class adminDashboard
             Count = 0
             LicenseCount = 0
 
+            Dim hashedPassword As String = HashPassword(txtAddPassword.Text)
+
             Dim pattern As String = "^[A-Za-z0-9+_.-]+@(.+)$"
             Dim PasswordPattern As String = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
             Dim Regex As New Regex(pattern)
@@ -69,7 +42,7 @@ Public Class adminDashboard
 
 
 
-            Query = "INSERT INTO `users`(`Name`, `Email`, `Password`, `PhoneNumber`, `National_ID`, `LicenseNumber`) VALUES ('" & txtAddName.Text.ToUpper & "','" & txtAddEmail.Text.ToLower & "','" & txtAddPassword.Text & "','" & txtAddPhoneNumber.Text & "','" & txtAddNationalID.Text & "','" & txtAddLicenseNumber.Text & "')"
+            Query = "INSERT INTO `users`(`Name`, `Email`, `Password`, `PhoneNumber`, `National_ID`, `LicenseNumber`) VALUES ('" & txtAddName.Text.ToUpper & "','" & txtAddEmail.Text.ToLower & "','" & hashedPassword & "','" & txtAddPhoneNumber.Text & "','" & txtAddNationalID.Text & "','" & txtAddLicenseNumber.Text & "')"
             QueryEmail = "SELECT * FROM users WHERE email='" & txtAddEmail.Text & "'"
             QueryLicenseNumber = "SELECT * FROM users WHERE LicenseNumber='" & txtAddLicenseNumber.Text & "'"
             CommandConfirmEmail = New MySqlCommand(QueryEmail, MySqlConn)
@@ -160,31 +133,40 @@ Public Class adminDashboard
         Dim fieldsToUpdate As New List(Of String)
 
         Try
-            ' Establish connection using a using block
+            ' Establishing connection
             connection = New MySqlConnection("server=localhost;userid=root;password=;database=rentalproject")
             connection.Open()
 
-            ' Check for empty fields before building queries
+            ' Checking for empty fields before building queries
             If Not String.IsNullOrEmpty(txtUpdateName.Text) Then
                 fieldsToUpdate.Add("Name = @name")
             End If
             If Not String.IsNullOrEmpty(txtUpdatePassword.Text) Then
                 ' Validate password strength
                 If Not IsValidPassword(txtUpdatePassword.Text) Then
-                    MessageBox.Show("Password must meet complexity requirements.")
+                    MessageBox.Show("The password should have a minimum of eight characters, at least one uppercase letter, one lowercase letter, one number and one special character.")
                     Return
                 End If
                 fieldsToUpdate.Add("Password = @password")
             End If
-            ' ... similar checks for other fields
+            If Not String.IsNullOrEmpty(txtUpdatePhoneNumber.Text) Then
+                fieldsToUpdate.Add("PhoneNumber = @PhoneNumber")
+            End If
+            If Not String.IsNullOrEmpty(cmbRole.Text) Then
+                fieldsToUpdate.Add("is_Admin = @IsAdmin")
+            End If
 
-            ' Build the query if fields need updating
+
+            ' Building the query if fields need updating
             If fieldsToUpdate.Count > 0 Then
                 query = "UPDATE users SET " & String.Join(", ", fieldsToUpdate) & " WHERE Email = @email"
                 command = New MySqlCommand(query, connection)
                 ' Add parameters for safety
                 command.Parameters.AddWithValue("@name", txtUpdateName.Text)
-                ' ... parameters for other fields
+                command.Parameters.AddWithValue("@password", HashPassword(txtUpdatePassword.Text))
+                command.Parameters.AddWithValue("@PhoneNumber", txtUpdatePhoneNumber.Text)
+                command.Parameters.AddWithValue("@IsAdmin", cmbRole.Text)
+
                 command.Parameters.AddWithValue("@email", cmbSelectUserUpdate.Text)
 
                 ' Execute the update
@@ -203,18 +185,20 @@ Public Class adminDashboard
 
         End Try
 
-        ' Clear form fields
+        ' Clearing form fields
         txtUpdateName.Text = ""
         txtUpdatePassword.Text = ""
+        txtUpdatePhoneNumber.Text = ""
 
-        ' ... clear other fields
+        ' Clearing combo box fields
         cmbSelectUserUpdate.Text = ""
+        cmbRole.Text = ""
 
         ' Reload Combobox
         LoadUsersToComboBox()
     End Sub
 
-    ' Function to validate password strength (adjust as needed)
+    ' Function to validate password strength.
     Private Function IsValidPassword(password As String) As Boolean
         Dim regex As Regex = New Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$")
         Return regex.IsMatch(password)
@@ -240,7 +224,15 @@ Public Class adminDashboard
             Dim query = "DELETE FROM users WHERE Email = @email"
             command = New MySqlCommand(query, connection)
             command.Parameters.AddWithValue("@email", cmbSelectUserDelete.Text)
-            command.ExecuteNonQuery()
+
+            ' Ensuring that the admin account doesn't get accidentally deleted before executing.
+            If cmbSelectUserDelete.Text = "admin@gmail.com" Then
+                MessageBox.Show("Cannot delete admin")
+                Return ' Exit if admin account is selected.
+            Else
+                ' Executing the query
+                command.ExecuteNonQuery()
+            End If
 
 
             MessageBox.Show("User deleted successfully.")
@@ -367,7 +359,30 @@ Public Class adminDashboard
 
         End Try
     End Sub
+    Private Function HashPassword(password As String) As String
+        Using sha256 As SHA256 = SHA256.Create()
+            Dim hashedBytes As Byte() = sha256.ComputeHash(Encoding.UTF8.GetBytes(password))
+            Dim builder As New StringBuilder()
+            For Each b As Byte In hashedBytes
+                builder.Append(b.ToString("x2"))
+            Next
+            Return builder.ToString()
+        End Using
+    End Function
 
+    Private Sub picRent_Click(sender As Object, e As EventArgs) Handles picRent.Click
+        adminDashboardRent.Show()
+        Me.Hide()
+    End Sub
+
+    Private Sub picRentals_Click(sender As Object, e As EventArgs) Handles picRentals.Click
+        adminDashboardViewRentals.ShowDialog()
+    End Sub
+
+    Private Sub picManageCatalog_Click(sender As Object, e As EventArgs) Handles picManageCatalog.Click
+        adminDashboardManageCatalog.Show()
+        Me.Hide()
+    End Sub
 End Class
 
 

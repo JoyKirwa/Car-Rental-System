@@ -37,7 +37,6 @@ Partial Class adminDashboard
         Me.picRentals = New System.Windows.Forms.PictureBox()
         Me.picManageCatalog = New System.Windows.Forms.PictureBox()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.Button3 = New System.Windows.Forms.Button()
         Me.picSignupLogo = New System.Windows.Forms.PictureBox()
         Me.lblSignupConfirmPassword = New System.Windows.Forms.Label()
@@ -79,7 +78,6 @@ Partial Class adminDashboard
         CType(Me.picRentals, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picManageCatalog, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.Panel1.SuspendLayout()
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.picSignupLogo, System.ComponentModel.ISupportInitialize).BeginInit()
         CType(Me.dgvUserList, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
@@ -241,7 +239,6 @@ Partial Class adminDashboard
         'Panel1
         '
         Me.Panel1.BackColor = System.Drawing.Color.LightGray
-        Me.Panel1.Controls.Add(Me.PictureBox1)
         Me.Panel1.Controls.Add(Me.Button3)
         Me.Panel1.Controls.Add(Me.picSignupLogo)
         Me.Panel1.Dock = System.Windows.Forms.DockStyle.Top
@@ -252,24 +249,12 @@ Partial Class adminDashboard
         Me.Panel1.Size = New System.Drawing.Size(1067, 60)
         Me.Panel1.TabIndex = 9
         '
-        'PictureBox1
-        '
-        Me.PictureBox1.BackColor = System.Drawing.Color.Transparent
-        Me.PictureBox1.BackgroundImage = CType(resources.GetObject("PictureBox1.BackgroundImage"), System.Drawing.Image)
-        Me.PictureBox1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.PictureBox1.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.PictureBox1.Location = New System.Drawing.Point(1010, 12)
-        Me.PictureBox1.Name = "PictureBox1"
-        Me.PictureBox1.Size = New System.Drawing.Size(35, 35)
-        Me.PictureBox1.TabIndex = 5
-        Me.PictureBox1.TabStop = False
-        '
         'Button3
         '
         Me.Button3.BackColor = System.Drawing.Color.Gray
         Me.Button3.Cursor = System.Windows.Forms.Cursors.Hand
         Me.Button3.ForeColor = System.Drawing.Color.White
-        Me.Button3.Location = New System.Drawing.Point(920, 12)
+        Me.Button3.Location = New System.Drawing.Point(970, 12)
         Me.Button3.Name = "Button3"
         Me.Button3.Size = New System.Drawing.Size(75, 35)
         Me.Button3.TabIndex = 3
@@ -667,7 +652,6 @@ Partial Class adminDashboard
         CType(Me.picRentals, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.picManageCatalog, System.ComponentModel.ISupportInitialize).EndInit()
         Me.Panel1.ResumeLayout(False)
-        CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.picSignupLogo, System.ComponentModel.ISupportInitialize).EndInit()
         CType(Me.dgvUserList, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
@@ -682,7 +666,6 @@ Partial Class adminDashboard
     Friend WithEvents Panel2 As Panel
     Friend WithEvents picManageCatalog As PictureBox
     Friend WithEvents Panel1 As Panel
-    Friend WithEvents PictureBox1 As PictureBox
     Friend WithEvents Button3 As Button
     Friend WithEvents picSignupLogo As PictureBox
     Friend WithEvents picRentals As PictureBox
